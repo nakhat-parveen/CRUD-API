@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +29,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/students")
 @Validated
+@CacheConfig(cacheNames="students")
 public class StudentController {
 	@Autowired
 	StudentService studentservice;
@@ -40,14 +45,16 @@ public class StudentController {
 	    }
 	
 	@GetMapping("/{id}")
+	@Cacheable(key="#id")
 	public ResponseEntity<?> getStudentById(@PathVariable Integer id) throws NotFoundException {
 		Student student =studentservice.getStudent(id);
-
+        System.out.println("data coming from db");
 		return new ResponseEntity<>(student,HttpStatus.OK);
 	
 	}
 	
 	 @PutMapping("/{id}")
+	 @CachePut(key="#id")
 	    public ResponseEntity<Student>  updateStudent(@PathVariable Integer id, @Valid @RequestBody Student updatedStudent) throws NotFoundException {
 		 updatedStudent.setId(id);
 		 return new ResponseEntity<Student> (studentservice.updateStudent(updatedStudent), HttpStatus.ACCEPTED);
@@ -55,6 +62,7 @@ public class StudentController {
 	        
 	
 	 @DeleteMapping("/{id}")
+	 @CacheEvict(key="#id")
 	    public ResponseEntity<String> deleteStudent(@PathVariable Integer id) throws NotFoundException {
 	
 	        return new ResponseEntity<String>( studentservice.deleteStudent(id), HttpStatus.OK);
