@@ -81,7 +81,7 @@ The API will start on `http://localhost:8080`.
 ### Example request — create a student
 
 ```json
-POST /api/students
+POST /students
 Content-Type: application/json
 
 {
